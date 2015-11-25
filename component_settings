@@ -1,0 +1,15 @@
+# Settings file to be used with component_test.sh
+# To use this file: source component_settings && ./component_test.sh
+
+# Uncomment settings to run tests locally
+COMPONENT=neutron
+
+# Uncomment settings to run remotely 
+#DISTRO=rhel-7.1
+#PRODUCT_VERSION=7.0
+#PROVISIONER=openstack
+#SITE=###CHANGE_ME###
+#TEST_COMPONENT_BRANCH=###CHANGE_ME###
+#TEST_COMPONENT=neutron
+#TEST_COMPONENT_URL=http://###CHANGE_ME###/gerrit/neutron.git
+#TESTER_TYPE=pep8

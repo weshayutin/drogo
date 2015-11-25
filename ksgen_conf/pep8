@@ -1,0 +1,25 @@
+export BUILD_NUMBER=1
+export USER=$(whoami)
+export WORKSPACE=/
+
+ksgen --config-dir settings \
+  generate \
+    --provisioner=manual \
+    --product=rhos \
+    --product-repo=poodle \
+    --product-version=7.0 \
+    --distro=rhel-7.1 \
+    --installer=project \
+    --installer-component=neutron \
+    --tester=pep8 \
+    --extra-vars private.distro.rhel.rhos_release_path=none \
+  ksgen_settings.yml
+set +e
+anscmd="stdbuf -oL -eL ansible-playbook -vvvv --extra-vars @ksgen_settings.yml"
+
+$anscmd -i local_hosts playbooks/full-job.yml
+result=$?
+
+infra_result=0
+$anscmd -i hosts playbooks/collect_logs.yml &> collect_logs.txt || infra_result=1
+$anscmd -i local_hosts playbooks/cleanup.yml &> cleanup.txt || infra_result=2
