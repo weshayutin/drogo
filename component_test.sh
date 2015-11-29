@@ -8,7 +8,9 @@ KSGEN_DIR=ksgen_conf
 EXIT_NO_ARGS=42
 EXIT_HELP=13
 EXIT_NO_TESTER=36
+EXIT_NO_BRANCH=26
 EXIT_END=95
+EXIT_NOT_FOUND=90
 
 PRODUCT=rhos
 PRODUCT_REPO=poodle
@@ -58,11 +60,17 @@ be provided with -b <branch_name>"
 	    fi
 	fi
     else
-       echo "Found $COMPONENT!"
+        if [ ! -d $COMPONENT ]; then
+            echo "$COMPONENT dir could be found! are you sure you have provided the right path?" 
+            remove_container
+	    exit $EXIT_NOT_FOUND
+	else
+            echo "Found $COMPONENT!"
+	fi
     fi
 }
 
-function parse_options() {
+function parse_args() {
     echo  "====== Parse Options ======"
     # Set Branch
     pushd $COMPONENT > /dev/null
@@ -70,7 +78,7 @@ function parse_options() {
 	    echo "*Checkout BRANCH: $BRANCH"
             git checkout $BRANCH
 	else
-	    BRANCH=$(basename `git name-rev --name-only HEAD`)
+	    BRANCH=$(basename `git name-rev --name-only HEAD`) || (echo "Could not detect branch." && remove_container && exit EXIT_NO_BRANCH)
             echo "*Detected branch: $BRANCH"
 	fi
     popd > /dev/null
@@ -203,7 +211,7 @@ done
 install_docker 
 run_container 
 ensure_component 
-parse_options
+parse_args
 copy_component
 ensure_tester
 set_options
