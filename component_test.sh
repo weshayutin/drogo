@@ -144,6 +144,20 @@ function update_redhat-release() {
     echo "Updated to rhel 7.1"
 }
 
+function help() {
+    echo "USAGE: component_test.sh -c <component> -t <tester_type> [OPTIONS]
+
+OPTIONS:
+	 -git,--component_url   component_url
+         -b,--branch            branch
+	 -p,--product           product (rhos,rdo)
+	 -pv,--product-version  product version (5.0, 6.0, 7.0, 8.0)
+	 -pr,--product-repo     product repo type
+Examples:
+Run pep8 tests in neutron: ./component_test.sh -c neutron -t pep8"
+    exit $EXIT_HELP
+}
+
 #===================== Main ========================================
 
 mkdir -p $LOG_DIR
@@ -156,6 +170,10 @@ fi
 # Generate random alphanumeric string for unique container name
 random_str=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 5 | head -n 1`
 CONTAINER_NAME=khaleesi_$random_str
+
+if [ $# -eq 0 ]; then
+    help
+fi 
 
 while [ $# -ge 1 ]
 do
@@ -190,17 +208,7 @@ do
 	shift
         ;;
         -h|--help)
-        echo "USAGE: component_test.sh -c <component> -t <tester_type> [OPTIONS]
-
-OPTIONS:
-	 -git,--component_url   component_url
-         -b,--branch            branch
-	 -p,--product           product (rhos,rdo)
-	 -pv,--product-version  product version (5.0, 6.0, 7.0, 8.0)
-	 -pr,--product-repo     product repo type
-Examples:
-Run pep8 tests in neutron: ./component_test.sh -c neutron -t pep8"
-        exit $EXIT_HELP
+	help
         ;;
         *)
         shift
