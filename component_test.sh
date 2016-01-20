@@ -91,16 +91,19 @@ function parse_args() {
 }
 
 function set_options() {
+    # Set Component
+    COMPONENT=`basename $COMPONENT`
+
     echo  "====== Setting options in $KSGEN_DIR/$TESTER ======"
-    # Set product
+    echo "Setting product: $PRODUCT"
     sed -i -e "/product=/ s/=.*/=$PRODUCT \\\/" $KSGEN_DIR/$TESTER
-    # Set product version
+    echo "Setting product version"
     sed -i -e "/product-version=/ s/=.*/=$PRODUCT_VERSION \\\/" $KSGEN_DIR/$TESTER
-    # Set product repo
+    echo "Setting product repo"
     sed -i -e "/product-repo=/ s/=.*/=$PRODUCT_REPO \\\/" $KSGEN_DIR/$TESTER
-    # Set component
+    echo "Setting component: $COMPONENT"
     sed -i -e "/installer-component=/ s/=.*/=$COMPONENT \\\/" $KSGEN_DIR/$TESTER
-    # Set tester
+    echo "Setting tester"
     sed -i -e "/tester=/ s/=.*/=$TESTER \\\/" $KSGEN_DIR/$TESTER
     echo  "*Done"
 }
@@ -133,8 +136,13 @@ arguments using cli with -t tester_type "
 function copy_tester_settings() {
     echo  "====== Copying $TESTER ksgen settings into container ======"
     sudo docker cp $KSGEN_DIR/$TESTER $CONTAINER_NAME:/khaleesi/
-    sudo docker exec $CONTAINER_NAME chmod +r /khaleesi/$TESTER
+    sudo docker exec $CONTAINER_NAME chmod +x /khaleesi/$TESTER
     echo "Copied $COMPONENT to $CONTAINER_NAME"
+}
+
+function run_ksgen() {
+    echo  "====== Running Ksgen ======"
+    sudo docker exec $CONTAINER_NAME /bin/bash /khaleesi/$TESTER
 }
 
 function update_redhat-release() {
@@ -225,4 +233,5 @@ ensure_tester
 set_options
 copy_tester_settings
 update_redhat-release
+run_ksgen
 #remove_container
